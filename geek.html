@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEEK Analysis</title>
+  <!-- FontAwesome for arrow icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+  <script src="src/plugins/priceHeatmap.js"></script>
+  <style>
+    :root {
+      --primary-bg: #121212;
+      --secondary-bg: #1e1e1e;
+      --tertiary-bg: #272727;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --accent-green: #8af313;
+      --accent-red: #f97035;
+      --chart-bg: #000000;
+      --chart-line: #00e5ff;
+      --price-color: #abd7d2;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background-color: var(--primary-bg);
+      color: var(--text-primary);
+    }
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--secondary-bg);
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      z-index: 100;
+    }
+    .top-bar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--secondary-bg);
+      padding: 10px 20px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 99;
+    }
+    .top-bar img {
+      border-radius: 50%;
+    }
+    .main-container {
+      display: flex;
+      margin-top: 80px;
+      width: 100%;
+      height: calc(100vh - 80px);
+      gap: 20px;
+    }
+    .orderbook-column {
+      width: 20%;
+      max-width: 20%;
+      padding: 20px;
+      background: var(--chart-bg);
+      overflow-y: auto;
+      border-right: 1px solid var(--tertiary-bg);
+    }
+    .chart-column {
+      width: 60%;
+      padding: 20px;
+      background: var(--chart-bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .orderbook-header {
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .order-book {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .order-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 10px;
+      border-radius: 4px;
+      position: relative;
+    }
+    .order-entry::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: var(--fill-width, 0%);
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      z-index: 0;
+    }
+    .order-entry span {
+      position: relative;
+      z-index: 1;
+    }
+    .order-level {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    .order-entry.buy {
+      color: var(--accent-green);
+    }
+    .order-entry.sell {
+      color: var(--accent-red);
+    }
+    .timeframe-selector {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .timeframe-btn {
+      background: var(--tertiary-bg);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+    }
+    .timeframe-btn.active {
+      background: var(--accent-green);
+      color: var(--primary-bg);
+    }
+    .chart-container {
+      width: 100%;
+      height: 20%;
+      flex: 1;
+      position: relative;
+    }
+    /* Chart Mode Switch Styles */
+    .chart-mode-switch {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      background: var(--secondary-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      z-index: 10;
+    }
+    .chart-mode-switch button {
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-secondary);
+      font-weight: bold;
+      transition: background 0.3s, color 0.3s;
+    }
+    .chart-mode-switch button.active {
+      background: var(--accent-green);
+      color: var(--primary-bg);
+    }
+    /* Chart Settings Styles */
+    .chart-settings {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 20;
+    }
+    .chart-settings button {
+      background: var(--secondary-bg);
+      border: none;
+      color: var(--text-secondary);
+      padding: 5px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .settings-panel {
+      background: var(--secondary-bg);
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 5px;
+      color: var(--text-primary);
+      font-size: 12px;
+    }
+    .settings-panel label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .settings-panel input[type="range"],
+    .settings-panel input[type="color"] {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    hr {
+      border: 1px solid var(--tertiary-bg);
+      margin: 10px 0;
+    }
+
+    /*live Transactions*/
+    /* Container for live transactions */
+    .live-transactions-container {
+      width: 20%; /* Keep or adjust as needed */
+      margin: 2px auto;
+      background: var(--chart-bg);
+      border-radius: 12px;
+      padding: 20px;
+      height: 870px; /* Reduced height */
+      overflow-y: auto; /* Allows scrolling if content exceeds container */
+      position: relative;
+      box-shadow: 0 4px 15px rgba(237, 200, 200, 0.5);
+    } 
+    
+
+/* Title for live transactions panel */
+.live-transactions-title {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  padding-left: 10px;
+}
+
+/* The container where live transaction entries are added */
+.live-transactions {
+  height: calc(100% - 40px);
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+/* Individual transaction styling remains the same */
+.transaction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-radius: 8px;
+  background: var(--secondary-bg);
+}
+
+.transaction:hover {
+  background: var(--tertiary-bg);
+}
+.transaction span {
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* Variants for transaction sizes */
+.transaction.large {
+  padding: 12px 16px;
+  margin: 6px 0;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.transaction.huge {
+  padding: 14px 18px;
+  margin: 8px 0;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* Differentiating buy (long) vs. sell (short) orders */
+.transaction.long {
+  border-left: 4px solid var(--accent-green);
+}
+
+.transaction.short {
+  border-left: 4px solid var(--accent-red);
+}
+
+/* Styling for inner elements of each transaction */
+.transaction-type {
+  flex: 0 0 80px;
+  font-weight: 500;
+}
+
+.transaction.long .transaction-type {
+  color: var(--accent-green);
+}
+
+.transaction.short .transaction-type {
+  color: var(--accent-red);
+}
+
+.transaction-amount {
+  flex: 1;
+  text-align: right;
+  color: var(--text-secondary);
+}
+
+.transaction-price {
+  flex: 1;
+  text-align: right;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.transaction .transaction-time {
+  flex: 0 0 auto;
+  min-width: 2px; /* Adjust as needed */
+  text-align: right;
+}
+
+/* Size indicator for visual cues */
+.size-indicator {
+  display: inline-block;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+  animation: pulse 0.5s ease-out;
+}
+
+.transaction.long .size-indicator.normal {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-green);
+}
+
+.transaction.long .size-indicator.large {
+  width: 12px;
+  height: 12px;
+  background-color: var(--accent-green);
+}
+
+.transaction.long .size-indicator.huge {
+  width: 16px;
+  height: 16px;
+  background-color: var(--accent-green);
+}
+
+.transaction.short .size-indicator.normal {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-red);
+}
+
+.transaction.short .size-indicator.large {
+  width: 12px;
+  height: 12px;
+  background-color: var(--accent-red);
+}
+
+.transaction.short .size-indicator.huge {
+  width: 16px;
+  height: 16px;
+  background-color: var(--accent-red);
+}
+.transaction .transaction-amount {
+  margin-right: 15px;  /* Adjust the value as needed for more or less space */
+}
+
+
+
+
+    
+  </style>
+</head>
+<body>
+  <button class="back-button" id="backButton">
+    <i class="fas fa-arrow-left"></i> Back
+  </button>
+  <div class="top-bar">
+    <img id="coinIcon" src="" alt="Coin Icon" width="32" height="32">
+    <span id="coinSymbol">Loading...</span>
+  </div>
+  <div class="main-container">
+    <!-- Left Column: Order Book -->
+    <div class="orderbook-column">
+      <div class="orderbook-header" id="orderBookName">Coin Name</div>
+      <div id="orderBook" class="order-book"></div>
+    </div>
+    <!-- Right Column: Chart -->
+    <div class="chart-column">
+      <!-- Chart Mode Switch with Liquidity Zones button -->
+      <div class="chart-mode-switch" id="chartModeSwitch">
+        <button class="mode-option standard active" data-mode="standard">Standard</button>
+        <button class="mode-option heatmap" data-mode="heatmap">Heatmap</button>
+        <button class="mode-option liquidity" data-mode="liquidity">Liquidity Zones</button>
+      </div>
+      <div class="timeframe-selector">
+        <button class="timeframe-btn" data-time="1m">1M</button>
+        <button class="timeframe-btn" data-time="15m">15M</button>
+        <button class="timeframe-btn" data-time="1h">1H</button>
+        <button class="timeframe-btn" data-time="4h">4H</button>
+        <button class="timeframe-btn active" data-time="1d">1D</button>
+        <button class="timeframe-btn" data-time="1w">1W</button>
+      </div>
+      <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+        <!-- Chart Settings Panel with additional Liquidity inputs -->
+        <div class="chart-settings">
+          <button id="settingsToggle"><i class="fas fa-cog"></i></button>
+          <div id="settingsPanel" class="settings-panel" style="display: none;">
+            <label>Order Book Threshold for <span id="coinLabelThreshold"></span>: <span id="thresholdValue"></span></label>
+            <input type="range" id="orderBookThresholdInput" min="0" max="1" step="0.0010">
+            <label>Historical Line Length: <span id="lineLengthValue"></span>px</label>
+            <input type="range" id="historicalLineLengthInput" min="10" max="250" step="5" value="40">
+            <label>Heatmap Bar Height: <span id="heatmapBarHeightValue"></span>px</label>
+            <input type="range" id="heatmapBarHeightInput" min="1" max="10" step="1" value="4">
+            <label>Chart Background Color:</label>
+            <input type="color" id="chartBackgroundColorInput" value="#1e1e1e">
+            <hr>
+            <!-- New Liquidity Zones Settings -->
+            <label>Liquidity Zone Bar Height: <span id="liquidityBarHeightValue"></span>px</label>
+            <input type="range" id="liquidityBarHeightInput" min="1" max="20" step="1" value="1">
+            <label>Liquidity Volume Threshold (1D+): <span id="liquidityVolumeThresholdValue"></span></label>
+            <input type="range" id="liquidityVolumeThresholdInput" min="0" max="18" step="0.1" value="0.1">
+            <label>Liquidity Line Extension: <span id="liquidityLineExtensionValue"></span>px</label>
+            <input type="range" id="liquidityLineExtensionInput" min="0" max="8000" step="1" value="3">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="live-transactions-container">
+      <div class="live-transactions-title">Live Transactions</div>
+      <div class="live-transactions" id="liveTransactions"></div>
+    </div>
+    
+  </div>
+  
+  <script>
+    // Helper: returns a multiplier factor based on the current timeframe.
+    function getTimeframeFactor(tf) {
+      switch(tf) {
+        case '1m': return 0.5;
+        case '15m': return 0.7;
+        case '1h': return 0.8;
+        case '4h': return 1.0;
+        case '1d': return 1.2;
+        case '1w': return 1.5;
+        default: return 1.0;
+      }
+    }
+    
+    // Global variables for liquidity settings and data storage
+    let liquidityBarHeight = 1;
+    let liquidityVolumeThreshold = 0.1;
+    let liquidityLineExtension = 3;
+    let latestTradeData = [];
+    
+    // Event listeners for liquidity settings
+    document.getElementById('liquidityBarHeightInput').addEventListener('input', function(e) {
+      liquidityBarHeight = parseFloat(e.target.value);
+      document.getElementById('liquidityBarHeightValue').textContent = liquidityBarHeight;
+      if(chart) chart.update();
+    });
+    
+    document.getElementById('liquidityVolumeThresholdInput').addEventListener('input', function(e) {
+      liquidityVolumeThreshold = parseFloat(e.target.value);
+      document.getElementById('liquidityVolumeThresholdValue').textContent = 
+        liquidityVolumeThreshold.toFixed(1) + ' BTC';
+      if(chart) chart.update('none');
+    });
+    
+    document.getElementById('liquidityLineExtensionInput').addEventListener('input', function(e) {
+      liquidityLineExtension = parseFloat(e.target.value);
+      document.getElementById('liquidityLineExtensionValue').textContent = liquidityLineExtension;
+      if(chart) chart.update();
+    });
+    
+    // Global settings for other plugins and timeframe tracking
+    let orderBookThreshold, historicalLineLength = 40, heatmapBarHeight = 4;
+    let currentTimeframe = '1d';
+    const HEATMAP_COLORS = {
+      UP: [138, 243, 19],
+      DOWN: [249, 112, 53],
+      LABEL: [255, 255, 255]
+    };
+    
+    // Retrieve URL parameters and persist coin selection
+    const urlParams = new URLSearchParams(window.location.search);
+    let symbol = urlParams.get('symbol') || localStorage.getItem('selectedSymbol');
+    if (!symbol) {
+      symbol = 'BTCUSDT';
+    }
+    localStorage.setItem('selectedSymbol', symbol);
+    let id = urlParams.get('id') || localStorage.getItem('selectedId') || '';
+    if (id) {
+      localStorage.setItem('selectedId', id);
+    }
+    document.getElementById('coinSymbol').textContent = symbol;
+    document.getElementById('orderBookName').textContent = symbol;
+    if (id) {
+      document.getElementById('coinIcon').src = `https://s2.coinmarketcap.com/static/img/coins/64x64/${id}.png`;
+    } else {
+      const fallbackId = symbol.replace('USDT', '').toLowerCase();
+      document.getElementById('coinIcon').src = `https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons@master/32/color/${fallbackId}.png`;
+    }
+    
+    let defaultThreshold = symbol.toUpperCase().includes("BTC") ? 0.2 : 0.1;
+    orderBookThreshold = defaultThreshold;
+    document.getElementById('orderBookThresholdInput').value = defaultThreshold;
+    document.getElementById('thresholdValue').textContent = defaultThreshold;
+    document.getElementById('coinLabelThreshold').textContent = symbol;
+    
+    let currentChartMode = 'standard';
+    let previousMidPrice = null;
+    let liveInterval = null;
+    let chart; // global chart instance
+    
+    // Back button event
+    document.getElementById('backButton').addEventListener('click', () => {
+      window.location.href = `coinmarketcap.html?symbol=${symbol}&id=${id}`;
+    });
+    
+    // Toggle settings panel
+    document.getElementById('settingsToggle').addEventListener('click', function() {
+      const panel = document.getElementById('settingsPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    document.getElementById('orderBookThresholdInput').addEventListener('input', function(e) {
+      let newVal = parseFloat(e.target.value);
+      if(symbol.toUpperCase().includes("BTC")) {
+        orderBookThreshold = newVal * 2;
+      } else {
+        orderBookThreshold = newVal;
+      }
+      document.getElementById('thresholdValue').textContent = orderBookThreshold;
+      if(chart) chart.update('none');
+    });
+    
+    document.getElementById('historicalLineLengthInput').addEventListener('input', function(e) {
+      historicalLineLength = parseFloat(e.target.value);
+      document.getElementById('lineLengthValue').textContent = historicalLineLength;
+      if(chart) chart.update();
+    });
+    
+    document.getElementById('heatmapBarHeightInput').addEventListener('input', function(e) {
+      heatmapBarHeight = parseFloat(e.target.value);
+      document.getElementById('heatmapBarHeightValue').textContent = heatmapBarHeight;
+      if(chart) chart.update();
+    });
+    
+    document.getElementById('chartBackgroundColorInput').addEventListener('input', function(e) {
+      const newColor = e.target.value;
+      document.documentElement.style.setProperty('--chart-bg', newColor);
+      if(chart) chart.update();
+    });
+    
+    // Enhance historical data fetching
+    // Enhance historical data fetching with larger chunks and a reduced delay
+async function fetchHistoricalTrades() {
+  try {
+    let allTrades = [];
+    const now = Date.now();
+    
+    // Adjust fetch window based on timeframe
+    let fetchWindow;
+    switch(currentTimeframe) {
+      case '1m':
+        fetchWindow = 60 * 60 * 1000; // 1 hour
+        break;
+      case '15m':
+        fetchWindow = 4 * 60 * 60 * 1000; // 4 hours
+        break;
+      case '1h':
+        fetchWindow = 96 * 60 * 60 * 1000; // 24 hours
+        break;
+      case '4h':
+        fetchWindow = 20 * 24 * 60 * 60 * 1000; // 1 day for 4h
+        break; 
+      default:
+        fetchWindow = 7 * 24 * 60 * 60 * 1000; // 7 days for other timeframes
+    }
+    
+    // Use a larger chunk size (e.g., 3 hours instead of 1 hour)
+    const chunkSize = 3 * 60 * 60 * 1000; 
+    const startTime = now - fetchWindow;
+    
+    for (let time = startTime; time < now; time += chunkSize) {
+      const endTime = Math.min(time + chunkSize, now);
+      const url = `https://api.binance.com/api/v3/aggTrades?symbol=${symbol}&startTime=${time}&endTime=${endTime}&limit=1000`;
+      const response = await fetch(url);
+      let trades = await response.json();
+      if (!Array.isArray(trades)) trades = [];
+      allTrades = allTrades.concat(trades);
+      
+      // Reduced delay to 10ms (or remove if you're within rate limits)
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    
+    latestTradeData = allTrades;
+    if(currentChartMode === 'liquidity') {
+      chart.update('none');
+    }
+  } catch (error) {
+    console.error('Error fetching historical trade data:', error);
+  }
+}
+
+    
+    // Connect to Binance WebSocket for real-time aggregated trade data.
+    function connectTradeWebSocket() {
+      const wsUrl = `wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@aggTrade`;
+      const ws = new WebSocket(wsUrl);
+      ws.onmessage = function(event) {
+        try {
+          const trade = JSON.parse(event.data);
+          if (!latestTradeData) {
+            latestTradeData = [];
+          }
+          // Append new trade data.
+          latestTradeData.push(trade);
+          if (currentChartMode === 'liquidity') {
+            chart.update('none');
+          }
+        } catch (err) {
+          console.error('Error processing websocket message', err);
+        }
+      };
+      ws.onclose = function() {
+        console.warn('Trade websocket closed. Reconnecting in 5 seconds...');
+        setTimeout(connectTradeWebSocket, 5000);
+      };
+      ws.onerror = function(error) {
+        console.error('WebSocket error', error);
+        ws.close();
+      };
+    }
+    
+    // Register Liquidity Zones Plugin
+    Chart.register({
+      id: 'liquidityZones',
+      beforeDraw: (chartInstance) => {
+        if (currentChartMode !== 'liquidity' || !latestTradeData || latestTradeData.length === 0) return;
+        
+        const ctx = chartInstance.ctx;
+        const chartArea = chartInstance.chartArea;
+        const yScale = chartInstance.scales.y;
+        const xScale = chartInstance.scales.x;
+        
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+
+        window.liquidityZones = [];
+        const currentPrice = chartInstance.data.datasets[0].data[chartInstance.data.datasets[0].data.length - 1].c;
+
+        // Use the user-controlled liquidityBarHeight instead of hardcoded value
+        const minZoneWidth = 100;
+
+        const timeWindows = new Map();
+        const timeframeMinutes = {
+          '1m': 1,
+          '15m': 15,
+          '1h': 60,
+          '4h': 240,
+          '1d': 1440,
+          '1w': 10080
+        }[currentTimeframe] || 1440;
+
+        const windowSize = timeframeMinutes * 60 * 1000;
+        
+        latestTradeData.forEach(trade => {
+          const windowStart = Math.floor(trade.T / windowSize) * windowSize;
+          if (!timeWindows.has(windowStart)) {
+            timeWindows.set(windowStart, []);
+          }
+          timeWindows.get(windowStart).push(trade);
+        });
+
+        timeWindows.forEach((trades, windowStart) => {
+          const tradeAggregation = new Map();
+          const windowEnd = windowStart + windowSize;
+          
+          trades.forEach(trade => {
+            const price = parseFloat(trade.p);
+            const volume = parseFloat(trade.q);
+            const timeWeight = Math.exp(-(windowEnd - trade.T) / (windowSize / 2));
+            const roundedPrice = Math.round(price * 2) / 2;
+            const isLong = trade.m;
+            
+            if (!tradeAggregation.has(roundedPrice)) {
+              tradeAggregation.set(roundedPrice, {
+                totalVolume: volume * timeWeight,
+                longVolume: isLong ? volume * timeWeight : 0,
+                shortVolume: !isLong ? volume * timeWeight : 0,
+                trades: [trade],
+                firstTrade: trade,
+                lastTrade: trade,
+                duration: 0,
+                isActive: Math.abs(price - currentPrice) / currentPrice < 0.01
+              });
+            } else {
+              const agg = tradeAggregation.get(roundedPrice);
+              agg.totalVolume += volume * timeWeight;
+              if (isLong) agg.longVolume += volume * timeWeight;
+              else agg.shortVolume += volume * timeWeight;
+              agg.trades.push(trade);
+              agg.lastTrade = trade;
+              agg.duration = trade.T - agg.firstTrade.T;
+              agg.isActive = Math.abs(price - currentPrice) / currentPrice < 0.01;
+              tradeAggregation.set(roundedPrice, agg);
+            }
+          });
+
+          tradeAggregation.forEach((data, price) => {
+            if (data.totalVolume >= liquidityVolumeThreshold) {
+              const y = yScale.getPixelForValue(price);
+              
+              // Calculate zone position and width
+              const startX = xScale.getPixelForValue(new Date(data.firstTrade.T));
+const originalEndX = xScale.getPixelForValue(new Date(data.lastTrade.T));
+// Add liquidityLineExtension (in pixels) to extend only to the right side and ensure it doesn't go past the chart area.
+const endX = Math.min(chartArea.right, originalEndX + liquidityLineExtension);
+
+              // Ensure minimum zone width
+              const zoneWidth = Math.max(minZoneWidth, endX - startX);
+              
+              const longRatio = data.longVolume / data.totalVolume;
+              let baseColor;
+              if (data.isActive) {
+                baseColor = longRatio > 0.5 ? [65, 105, 225] : [255, 140, 0];
+              } else {
+                baseColor = longRatio > 0.5 ? [65, 105, 225] : [255, 69, 0];
+              }
+
+              // Store zone data with actual liquidityBarHeight
+              window.liquidityZones.push({
+                x: startX,
+                y: y - liquidityBarHeight,
+                width: zoneWidth,
+                height: liquidityBarHeight * 2,
+                data: {
+                  price: price,
+                  volume: data.totalVolume,
+                  longVolume: data.longVolume,
+                  shortVolume: data.shortVolume,
+                  time: new Date(data.firstTrade.T),
+                  isActive: data.isActive,
+                  longRatio: longRatio
+                }
+              });
+
+              // Draw zone with gradient using actual liquidityBarHeight
+              const gradient = ctx.createLinearGradient(startX, 0, endX, 0);
+              gradient.addColorStop(0, `rgba(${baseColor.join(',')},0.8)`);
+              gradient.addColorStop(1, `rgba(${baseColor.join(',')},0.2)`);
+              
+              ctx.fillStyle = gradient;
+              ctx.beginPath();
+              ctx.roundRect(
+                startX,
+                y - liquidityBarHeight,
+                zoneWidth,
+                liquidityBarHeight * 2,
+                liquidityBarHeight / 2
+              );
+              ctx.fill();
+            }
+          });
+        });
+
+        ctx.restore();
+      }
+    });
+    
+    // Create enhanced tooltip element with better styling
+    function createTooltip() {
+      const tooltip = document.createElement('div');
+      tooltip.id = 'liquidityTooltip';
+      tooltip.style.cssText = `
+        position: fixed;
+        background: rgba(20, 21, 26, 0.95);
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        z-index: 1000;
+        pointer-events: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        min-width: 200px;
+        backdrop-filter: blur(4px);
+      `;
+      document.body.appendChild(tooltip);
+      return tooltip;
+    }
+    
+    // Enhanced hover interaction handler
+    document.getElementById('priceChart').addEventListener('mousemove', (event) => {
+      if (currentChartMode !== 'liquidity' || !window.liquidityZones) return;
+      
+      const rect = event.target.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      
+      let hoveredZone = null;
+      for (const zone of window.liquidityZones) {
+        if (x >= zone.x && x <= zone.x + zone.width &&
+            y >= zone.y && y <= zone.y + zone.height) {
+          hoveredZone = zone;
+          break;
+        }
+      }
+      
+      if (hoveredZone) {
+        const tooltip = document.getElementById('liquidityTooltip') || createTooltip();
+        
+        // Adjust position to keep tooltip in viewport
+        let leftPos = event.clientX + 10;
+        let topPos = event.clientY + 10;
+        
+        // Check right edge
+        if (leftPos + 220 > window.innerWidth) {
+          leftPos = event.clientX - 230;
+        }
+        
+        // Check bottom edge
+        if (topPos + 160 > window.innerHeight) {
+          topPos = event.clientY - 170;
+        }
+        
+        tooltip.style.display = 'block';
+        tooltip.style.left = leftPos + 'px';
+        tooltip.style.top = topPos + 'px';
+        
+        const longPercentage = (hoveredZone.data.longRatio * 100).toFixed(1);
+        const shortPercentage = (100 - hoveredZone.data.longRatio * 100).toFixed(1);
+        
+        // Format the time
+        const time = hoveredZone.data.time;
+        const timeString = time.toLocaleString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        // Create the distribution bar
+        const distributionBar = `
+          <div style="
+            height: 24px;
+            width: 100%;
+            background: #ff6b6b;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+            position: relative;
+          ">
+            <div style="
+              height: 100%;
+              width: ${longPercentage}%;
+              background: #4CAF50;
+              position: absolute;
+              left: 0;
+              top: 0;
+            "></div>
+            <div style="
+              position: absolute;
+              width: 100%;
+              height: 100%;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0 8px;
+              color: white;
+              font-size: 12px;
+              font-weight: bold;
+              text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            ">
+              <span>Buy ${longPercentage}%</span>
+              <span>Sell ${shortPercentage}%</span>
+            </div>
+          </div>
+        `;
+        
+        tooltip.innerHTML = `
+          <div style="margin-bottom: 8px; font-size: 14px; font-weight: bold; color: ${hoveredZone.data.isActive ? '#00ff00' : 'white'}">
+            $${hoveredZone.data.price.toFixed(2)} ${hoveredZone.data.isActive ? '(Active)' : ''}
+          </div>
+          <div style="margin-bottom: 8px;">
+            <span style="color: #888;">Volume:</span> 
+            <span style="float: right; font-weight: bold;">${hoveredZone.data.volume.toFixed(2)} BTC</span>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <span style="color: #888;">Time:</span> 
+            <span style="float: right;">${timeString}</span>
+          </div>
+          <div style="color: #888; margin-bottom: 4px;">Distribution:</div>
+          ${distributionBar}
+          <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 12px;">
+            <span style="color: #4CAF50;">${hoveredZone.data.longVolume.toFixed(2)} BTC</span>
+            <span style="color: #ff6b6b;">${hoveredZone.data.shortVolume.toFixed(2)} BTC</span>
+          </div>
+        `;
+      } else {
+        const tooltip = document.getElementById('liquidityTooltip');
+        if (tooltip) tooltip.style.display = 'none';
+      }
+    });
+    
+    // Existing Heatmap Plugin (unchanged)
+        // Existing Heatmap Plugin (unchanged)
+           // Existing Heatmap Plugin - Modified to show order book levels on the chart
+    Chart.register({
+      id: 'priceHeatmap',
+      beforeDraw: (chartInstance) => {
+        if (currentChartMode !== 'heatmap' || !latestOrderBookData) return;
+        const ctx = chartInstance.ctx;
+        const chartArea = chartInstance.chartArea;
+        const yScale = chartInstance.scales.y;
+        const xScale = chartInstance.scales.x;
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+    
+        // Process order book data first
+        const orderVolumes = { buys: new Map(), sells: new Map() };
+        latestOrderBookData.asks.forEach(order => {
+          const price = Math.round(parseFloat(order[0]) * 2) / 2;
+          const volume = parseFloat(order[1]);
+          orderVolumes.sells.set(price, (orderVolumes.sells.get(price) || 0) + volume);
+        });
+        latestOrderBookData.bids.forEach(order => {
+          const price = Math.round(parseFloat(order[0]) * 2) / 2;
+          const volume = parseFloat(order[1]);
+          orderVolumes.buys.set(price, (orderVolumes.buys.get(price) || 0) + volume);
+        });
+    
+        const minPrice = Math.floor(yScale.min);
+        const maxPrice = Math.ceil(yScale.max);
+        const priceStep = 0.5;
+        
+        // Calculate max volume for scaling
+        const maxVolume = Math.max(
+          ...Array.from(orderVolumes.buys.values()),
+          ...Array.from(orderVolumes.sells.values()),
+          1
+        );
+        const crazyThreshold = 0.9;
+        
+        // Draw order book levels across the entire chart width
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.lineTo(x + width - radius, y);
+          ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+          ctx.lineTo(x + width, y + height - radius);
+          ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+          ctx.lineTo(x + radius, y + height);
+          ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+          ctx.lineTo(x, y + radius);
+          ctx.quadraticCurveTo(x, y, x + radius, y);
+          ctx.closePath();
+          ctx.fill();
+        }
+    
+        for (let price = minPrice; price <= maxPrice; price += priceStep) {
+          const y = yScale.getPixelForValue(price);
+          
+          // Draw buy orders (bids) in green
+          const bidVol = orderVolumes.buys.get(price) || 0;
+          if (bidVol > 0) {
+            const intensity = bidVol / maxVolume;
+            if (intensity >= orderBookThreshold) {
+              // Use full chart width for buy orders with transparency based on volume
+              ctx.fillStyle = intensity >= crazyThreshold 
+                ? `rgba(38, 166, 154, ${intensity * 0.3})` // Green with transparency
+                : `rgba(38, 166, 154, ${intensity * 0.2})`; // Green with transparency
+              
+              drawRoundedRect(
+                ctx,
+                chartArea.left,
+                y - heatmapBarHeight / 2,
+                chartArea.width,
+                heatmapBarHeight,
+                Math.min(2, heatmapBarHeight / 2)
+              );
+              
+              // Add volume indicator on the right
+              ctx.fillStyle = intensity >= crazyThreshold 
+                ? `rgba(38, 166, 154, ${intensity * 0.8})` 
+                : `rgba(38, 166, 154, ${intensity * 0.8})`;
+              
+              drawRoundedRect(
+                ctx,
+                chartArea.right - 40,
+                y - heatmapBarHeight / 2,
+                20,
+                heatmapBarHeight,
+                Math.min(2, heatmapBarHeight / 2)
+              );
+              
+              // Add price label for significant volumes
+              if (intensity > 0.5) {
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(`${price.toFixed(1)} (${bidVol.toFixed(2)} BTC)`, chartArea.right - 45, y + 3);
+              }
+            }
+          }
+          
+          // Draw sell orders (asks) in red
+          const askVol = orderVolumes.sells.get(price) || 0;
+          if (askVol > 0) {
+            const intensity = askVol / maxVolume;
+            if (intensity >= orderBookThreshold) {
+              // Use full chart width for sell orders with transparency based on volume
+              ctx.fillStyle = intensity >= crazyThreshold 
+                ? `rgba(239, 83, 80, ${intensity * 0.3})` // Red with transparency
+                : `rgba(239, 83, 80, ${intensity * 0.2})`; // Red with transparency
+              
+              drawRoundedRect(
+                ctx,
+                chartArea.left,
+                y - heatmapBarHeight / 2,
+                chartArea.width,
+                heatmapBarHeight,
+                Math.min(2, heatmapBarHeight / 2)
+              );
+              
+              // Add volume indicator on the right
+              ctx.fillStyle = intensity >= crazyThreshold 
+                ? `rgba(239, 83, 80, ${intensity * 0.8})` 
+                : `rgba(239, 83, 80, ${intensity * 0.8})`;
+              
+              drawRoundedRect(
+                ctx,
+                chartArea.right - 20,
+                y - heatmapBarHeight / 2,
+                20,
+                heatmapBarHeight,
+                Math.min(2, heatmapBarHeight / 2)
+              );
+              
+              // Add price label for significant volumes
+              if (intensity > 0.5) {
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${price.toFixed(1)} (${askVol.toFixed(2)} BTC)`, chartArea.right - 15, y + 3);
+              }
+            }
+          }
+        }
+        ctx.restore();
+      }
+    });
+    
+    // Initialize chart with proper candlestick configuration
+    document.addEventListener("DOMContentLoaded", function() {
+      const ctx = document.getElementById('priceChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'candlestick',
+        data: {
+          datasets: [{
+            label: symbol,
+            data: [],
+            color: {
+              up: '#26a69a',
+              down: '#ef5350',
+            },
+            borderColor: {
+              up: '#26a69a',
+              down: '#ef5350',
+            },
+            wickColor: {
+              up: '#26a69a',
+              down: '#ef5350',
+            }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              left: 10,
+              right: 10
+            }
+          },
+          scales: {
+            x: {
+              type: 'time',
+              distribution: 'linear',
+              time: {
+                unit: 'day',
+                displayFormats: {
+                  minute: 'HH:mm',
+                  hour: 'HH:mm',
+                  day: 'MMM d',
+                  week: 'MMM d',
+                  month: 'MMM YYYY'
+                }
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                source: 'data',
+                maxRotation: 0,
+                color: '#ffffff'
+              },
+              barWidth: 5 // Controls space between candles
+            },
+            y: {
+              position: 'right',
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: '#ffffff'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          elements: {
+            candlestick: {
+              width: 2, // Makes candles thinner
+              priceLineWidth: 1,
+              borderWidth: 1,
+              borderSkipped: false
+            }
+          },
+          animation: false
+        }
+      });
+      
+      async function updateChartData(timeframe = '1d') {
+        try {
+          currentTimeframe = timeframe;
+          const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${timeframe}&limit=100`);
+          const data = await response.json();
+          
+          const formattedData = data.map(d => ({
+            x: new Date(d[0]).getTime(), // Convert to timestamp
+            o: parseFloat(d[1]),
+            h: parseFloat(d[2]),
+            l: parseFloat(d[3]),
+            c: parseFloat(d[4])
+          }));
+
+          chart.data.datasets[0].data = formattedData;
+          
+          // Update time unit based on timeframe
+          chart.options.scales.x.time.unit = {
+            '1m': 'minute',
+            '15m': 'minute',
+            '1h': 'hour',
+            '4h': 'hour',
+            '1d': 'day',
+            '1w': 'week'
+          }[timeframe] || 'day';
+
+          chart.update('none');
+        } catch (error) {
+          console.error('Error fetching chart data:', error);
+        }
+      }
+      
+      function startLiveUpdates(timeframe) {
+        if (liveInterval) clearInterval(liveInterval);
+        const updateInterval = {
+          '1m': 20,
+          '15m': 5000,
+          '1h': 10000,
+          '4h': 15000,
+          '1d': 30000,
+          '1w': 60000
+        }[timeframe] || 30000;
+
+        liveInterval = setInterval(() => {
+          updateChartData(timeframe);
+        }, updateInterval);
+      }
+      
+      // Initial data load
+      updateChartData();
+      startLiveUpdates('1d');
+      
+      // Fetch historical trades once on load.
+      fetchHistoricalTrades();
+      // Open WebSocket for real-time trade data.
+      connectTradeWebSocket();
+      
+      document.querySelectorAll('.timeframe-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          const newTimeframe = e.target.dataset.time;
+          updateChartData(newTimeframe);
+          startLiveUpdates(newTimeframe);
+          // Refresh historical trades for the new timeframe.
+          fetchHistoricalTrades();
+        });
+      });
+      
+      document.querySelectorAll('.chart-mode-switch .mode-option').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.chart-mode-switch .mode-option').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          currentChartMode = e.target.dataset.mode;
+          chart.data.datasets[0].fill = false;
+          chart.data.datasets[0].backgroundColor = 'transparent';
+          
+          // Set default values when switching to liquidity mode
+          if (currentChartMode === 'liquidity') {
+            // Set default values with new settings
+            liquidityBarHeight = 1;
+            liquidityVolumeThreshold = 0.1;
+            liquidityLineExtension = 3;
+            
+            // Update the input elements to match
+            document.getElementById('liquidityBarHeightInput').value = liquidityBarHeight;
+            document.getElementById('liquidityBarHeightValue').textContent = liquidityBarHeight;
+            
+            document.getElementById('liquidityVolumeThresholdInput').value = liquidityVolumeThreshold;
+            document.getElementById('liquidityVolumeThresholdValue').textContent = 
+              liquidityVolumeThreshold.toFixed(1) + ' BTC';
+            
+            document.getElementById('liquidityLineExtensionInput').value = liquidityLineExtension;
+            document.getElementById('liquidityLineExtensionValue').textContent = liquidityLineExtension;
+            
+            // Ensure we have fresh trade data
+            fetchHistoricalTrades();
+          }
+          
+          chart.update();
+        });
+      });
+
+      // Establish WebSocket for trades
+const tradesWs = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@trade`);
+// Get the live transactions container using the new ID
+const liveTransactions = document.getElementById('liveTransactions');
+
+// Helper to format numbers
+function formatNumber(num) {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num);
+}
+
+// Determine the size category of the transaction
+function determineTransactionSize(amount) {
+  const currentPrice = parseFloat(document.getElementById('currentPrice').textContent.slice(1));
+  const value = amount * currentPrice;
+  if (value > 100000) return 'huge';
+  if (value > 10000) return 'large';
+  return 'normal';
+}
+
+// Handle incoming trade messages
+tradesWs.onmessage = (event) => {
+  const trade = JSON.parse(event.data);
+  const price = parseFloat(trade.p);
+  const amount = parseFloat(trade.q);
+  const isBuyOrder = trade.m === false;
+  
+  // Format the trade time
+  const tradeTime = new Date(trade.T).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+  
+  // Determine transaction size
+  const transactionSize = determineTransactionSize(amount);
+  
+  // Create a new transaction element
+  const transaction = document.createElement('div');
+  transaction.className = `transaction ${isBuyOrder ? 'long' : 'short'} ${transactionSize}`;
+  
+  transaction.innerHTML = `
+  <span class="size-indicator ${transactionSize}"></span>
+  <span class="transaction-type">${isBuyOrder ? 'LONG' : 'SHORT'}</span>
+  <span class="transaction-amount" style="margin-right: 15px;">$${formatNumber(price * amount)}</span>
+  <span class="transaction-price">$${formatNumber(price)}</span>
+`;
+  // Insert the new transaction at the top of the live transactions container
+  liveTransactions.insertBefore(transaction, liveTransactions.firstChild);
+  
+  // Remove older transactions if exceeding 100 entries
+  if (liveTransactions.children.length > 100) {
+    liveTransactions.removeChild(liveTransactions.lastChild);
+  }
+  
+  // Update market sentiment (assuming updateSentiment is defined elsewhere)
+  updateSentiment(isBuyOrder, amount, price);
+};
+
+      
+      async function fetchOrderBook() {
+        try {
+          const response = await fetch(`https://api.binance.com/api/v3/depth?symbol=${symbol}&limit=20`);
+          const data = await response.json();
+          latestOrderBookData = data;
+          const orderBook = document.getElementById('orderBook');
+          orderBook.innerHTML = '';
+          const bestBid = parseFloat(data.bids[0][0]);
+          const bestAsk = parseFloat(data.asks[0][0]);
+          const midPrice = ((bestBid + bestAsk) / 2).toFixed(2);
+          let priceColor = 'var(--text-primary)';
+          if (previousMidPrice !== null) {
+            if (parseFloat(midPrice) > parseFloat(previousMidPrice)) {
+              priceColor = 'var(--accent-green)';
+            } else if (parseFloat(midPrice) < parseFloat(previousMidPrice)) {
+              priceColor = 'var(--accent-red)';
+            }
+          }
+          let arrowIcon = '';
+          if (previousMidPrice !== null) {
+            if (parseFloat(midPrice) > parseFloat(previousMidPrice)) {
+              arrowIcon = `<i class="fas fa-arrow-up" style="color: var(--accent-green);"></i>`;
+            } else if (parseFloat(midPrice) < parseFloat(previousMidPrice)) {
+              arrowIcon = `<i class="fas fa-arrow-down" style="color: var(--accent-red);"></i>`;
+            }
+          }
+          previousMidPrice = midPrice;
+          let ordersHTML = '';
+          data.asks.slice().reverse().forEach(order => {
+            const price = order[0];
+            const size = order[1];
+            const fillPercentage = (parseFloat(size) / Math.max(...data.bids.map(b => parseFloat(b[1])), ...data.asks.map(a => parseFloat(a[1])))) * 100;
+            ordersHTML += `<div class="order-entry sell" style="--fill-width:${fillPercentage}%">
+                <span class="order-level" style="background-color: var(--accent-red); opacity: ${fillPercentage/100};"></span>
+                <span class="order-price">$${price}</span>
+                <span class="order-size">${size}</span>
+              </div>`;
+          });
+          ordersHTML += `<div class="order-entry" style="justify-content:center; font-weight:bold;">
+            <span id="currentPrice" class="live-price" style="color: ${priceColor};">$${midPrice}</span> ${arrowIcon}
+          </div>`;  
+            data.bids.forEach(order => {
+            const price = order[0];
+            const size = order[1];
+            const fillPercentage = (parseFloat(size) / Math.max(...data.bids.map(b => parseFloat(b[1])), ...data.asks.map(a => parseFloat(a[1])))) * 100;
+            ordersHTML += `<div class="order-entry buy" style="--fill-width:${fillPercentage}%">
+              <span class="order-level" style="background-color: var(--accent-green); opacity: ${fillPercentage/100};"></span>
+              <span class="order-price">$${price}</span>
+              <span class="order-size">${size}</span>
+            </div>`;
+          });
+          orderBook.innerHTML = ordersHTML;
+        } catch (error) {
+          console.error('Error fetching order book:', error);
+        }
+      }
+      
+      fetchOrderBook();
+      setInterval(fetchOrderBook, 20);
+      
+    });
+  </script>
+</body>
+</html>
