@@ -780,21 +780,24 @@
 }
 
 .trending-container {
-  display: grid; 
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 1.5rem;
-  margin: 0 200px; /* Added margin on left and right */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 0 45px;
+  margin-left: 145px; /* Add left margin to align with search container and filter buttons */
+  justify-content: flex-start; /* Change from center to flex-start */
 }
 
 .trending-card {
   background: transparent;
   color: var(--text-primaryrgb);
-  padding: 15px; /* Increased from 10px */
+  padding: 10px;
   width: 209px;
   border: 2.5px solid var(--cardbg);
-  border-radius: 34px; /* Fixed border radius value */
-  margin: 15px; /* Increased from 10px */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added subtle shadow */
+  border-radius: px;
+  margin: 10px;
+  /* Add this to ensure consistent spacing */
+  flex: 0 0 209px; /* Don't grow, don't shrink, fixed width */
 }
 
 /* Add spacing to the section heading for trending */
@@ -1410,9 +1413,789 @@ gauge-container {
   margin: 30px 0; /* Added top and bottom margin */
   justify-content: center; /* Center the cards */
 }
- 
+/* Flash Update Animations */
+.flash-green { animation: flashGreen var(--flash-duration); }
+    .flash-red { animation: flashRed var(--flash-duration); }
+    @keyframes flashGreen { 0% { background-color: transparent; } 50% { background-color: #2ed57333; } 100% { background-color: transparent; } }
+    @keyframes flashRed { 0% { background-color: transparent; } 50% { background-color: #ff475733; } 100% { background-color: transparent; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Section Divider Styles */
+        /* Section Divider Styles - Enhanced version */
+        .section-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2.5rem auto 1rem;
+      width: 90%;
+      position: relative;
+    }
+    
+    .divider-line {
+      height: 2px;
+      flex-grow: 1;
+      background: linear-gradient(90deg, transparent, var(--cardbg) 50%, transparent);
+      position: relative;
+    }
+    
+    .divider-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--primary-bg);
+      border: 2px solid var(--buttonbg);
+      margin: 0 15px;
+      color: var(--buttonbg);
+      font-size: 20px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(246, 219, 121, 0.2);
+      z-index: 2;
+    }
+    
+    .icon-pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--buttonbg);
+      animation: pulse 2s infinite;
+      opacity: 0;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.7; }
+      70% { transform: scale(1.3); opacity: 0; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+    
+    .divider-accent {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--buttonbg);
+      margin: 0 5px;
+    }
+    
+    .section-title-container {
+      text-align: center;
+      margin: 1rem auto 1.5rem;
+    }
+    
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin: 0;
+      padding: 0;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-subtitle::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 2px;
+      background-color: var(--buttonbg);
+    }
+    /* Crypto Controls Section */
+/* Update the crypto controls layout */
+.crypto-controls {
+  display: flex;
+  flex-direction: column;
+  padding: 0 45px;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Theme Filter Buttons */
+.theme-filter-buttons {
+  display: flex;
+  gap: 8px;
+  margin-right: auto; /* Push to the left */
+  margin-left: 160px; /* Add the same left margin as search container */
+}
+
+.theme-filter-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 8px 15px;
+  border-radius: 15px;
+  border: 1.5px solid var(--cardbg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
   
-    /* Flash Update Animations */
+}
+
+.theme-filter-btn:hover {
+  background: rgba(246, 219, 121, 0.1);
+  transform: translateY(-2px);
+}
+
+.theme-filter-btn.active {
+  background-color: var(--buttonbg);
+  color: var(--primary-bg);
+  border-color: var(--buttonbg);
+  font-weight: bold;
+}
+
+/* Adjust sorting buttons to match new style */
+.sorting-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.sorting-buttons button {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 8px 15px;
+  border-radius: 15px;
+  border: 1.5px solid var(--cardbg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sorting-buttons button:hover {
+  background: rgba(246, 219, 121, 0.1);
+  transform: translateY(-2px);
+}
+
+.sorting-buttons button.active {
+  background-color: var(--buttonbg);
+  color: var(--primary-bg);
+  border-color: var(--buttonbg);
+  font-weight: bold;
+}
+/* Time Filter Buttons */
+.time-filter-buttons {
+  display: flex;
+  gap: 8px;
+  margin-right: 250px;
+  margin-left: 40px;
+}
+
+.time-filter-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 8px 15px;
+  border-radius: 15px;
+  border: 1.5px solid var(--cardbg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.time-filter-btn:hover {
+  background: rgba(246, 219, 121, 0.1);
+  transform: translateY(-2px);
+}
+
+.time-filter-btn.active {
+  background-color: var(--buttonbg);
+  color: var(--primary-bg);
+  border-color: var(--buttonbg);
+  font-weight: bold;
+}
+
+/* Percentage change styling */
+.trending-percentage {
+  font-weight: bold;
+}
+
+.trending-percentage.positive {
+  color: #2ed573;
+}
+
+.trending-percentage.negative {
+  color: #ff4757;
+}
+
+/* Enhanced search bar styling */
+.search-container {
+  position: relative;
+  flex: 1;
+  max-width: 300px;
+  margin-left: 160px; /* Add margin to the container to align with cards */
+}
+
+.crypto-search {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  border-radius: 20px;
+  border: 2px solid var(--cardbg);
+  background-color: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.crypto-search:focus {
+  outline: none;
+  border-color: var(--buttonbg);
+  box-shadow: 0 0 5px rgba(246, 219, 121, 0.3);
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Search results dropdown */
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: var(--primary-bg);
+  border: 2px solid var(--cardbg);
+  border-radius: 10px;
+  margin-top: 5px;
+  z-index: 100;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-result-item:hover {
+  background-color: rgba(246, 219, 121, 0.1);
+}
+
+.search-result-item img {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.search-result-item .coin-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.category-search {
+    margin-left: 20px; /* Add left margin to align with cards */
+    margin-bottom: 15px;
+    width: calc(100% - 40px); /* Adjust width to account for margins */
+    position: relative;
+  }
+  
+  /* Make sure the category container has proper padding */
+  .category-container {
+    padding: 0 20px;
+  }
+  /* Whale Trades Styling */
+/* Whale Trades Styling - Enhanced */
+/* Updated Whale Trades Styling */
+/* Updated Whale Trades Styling */
+.whale-trades-container {
+  margin: 20px auto;
+  width: calc(70% - 40px);
+  max-width: 1200px;
+  background-color: var(--primary-bg);
+  border-radius: 12px;
+  border: 2px solid var(--cardbg);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  overflow: hidden;
+}
+
+.whale-trades-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(246, 219, 121, 0.2);
+}
+
+.whale-trades-header h3 {
+  font-size: 18px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  color: var(--buttonbg);
+  font-weight: 600;
+}
+
+.whale-icon {
+  margin-left: 8px;
+  font-size: 20px;
+}
+
+.whale-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+#whale-pair-selector {
+  background-color: rgba(246, 219, 121, 0.1);
+  border: 1px solid var(--buttonbg);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#whale-pair-selector:hover {
+  background-color: rgba(246, 219, 121, 0.2);
+  transform: translateY(-2px);
+}
+
+.threshold-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.refresh-indicator {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  color: var(--buttonbg);
+}
+
+.refresh-indicator.paused {
+  animation-play-state: paused;
+  opacity: 0.7;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.whale-trades-list {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 5px;
+  margin-bottom: 15px;
+}
+
+.whale-trades-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.whale-trades-list::-webkit-scrollbar-track {
+  background: rgba(246, 219, 121, 0.05);
+  border-radius: 3px;
+}
+
+.whale-trades-list::-webkit-scrollbar-thumb {
+  background: rgba(246, 219, 121, 0.2);
+  border-radius: 3px;
+}
+
+.large-trades-container, .small-trades-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.small-trades-toggle {
+  background-color: rgba(246, 219, 121, 0.1);
+  border: 1px solid rgba(246, 219, 121, 0.3);
+  color: var(--text);
+  padding: 8px 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.small-trades-toggle:hover {
+  background-color: rgba(246, 219, 121, 0.2);
+  transform: translateY(-2px);
+}
+
+.whale-placeholder {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.whale-trade-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  background-color: transparent;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+/* Add these new styles for buy/sell borders */
+.whale-trade-item[data-is-buy="true"] {
+  border: 2px solid #2ed573;
+}
+
+.whale-trade-item[data-is-buy="false"] {
+  border: 2px solid #ff4757;
+}
+
+.whale-trade-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: transparent;
+}
+
+.trade-direction-indicator {
+  width: 4px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.buy-indicator {
+  background-color: #2ed573;
+}
+
+.sell-indicator {
+  background-color: #ff4757;
+}
+
+.whale-trade-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.trade-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trade-category {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.trade-type {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.buy-type {
+  background-color: transparent;
+  color: #2ed573;
+  border: 1px solid #2ed573;
+}
+
+.sell-type {
+  background-color: transparent;
+  color: #ff4757;
+  border: 1px solid #ff4757;
+}
+
+.whale-trade-value {
+  font-weight: bold;
+  font-size: 14px;
+  margin-left: auto;
+  color: var(--buttonbg);
+}
+
+.trade-price-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.whale-trade-price {
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  font-size: 15px;
+}
+
+.whale-trade-amount {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.trade-analytics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.whale-liquidation {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.liquidation-buy {
+  background-color: rgba(255, 71, 87, 0.1);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
+.liquidation-sell {
+  background-color: rgba(46, 213, 115, 0.1);
+  color: #2ed573;
+  border: 1px solid rgba(46, 213, 115, 0.2);
+}
+
+.trade-pnl {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.pnl-positive {
+  background-color: transparent;
+  color: #2ed573;
+  border: 1px solid #2ed573;
+}
+
+.pnl-negative {
+  background-color: transparent;
+  color: #ff4757;
+  border: 1px solid #ff4757;
+}
+
+.pnl-flash {
+  animation: pnlFlash 0.5s ease;
+}
+
+@keyframes pnlFlash {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.whale-trade-time {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.whale-legend {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 12px;
+  background-color: var(--cardbg);
+  border-radius: 8px;
+  border: 1px solid rgba(246, 219, 121, 0.2);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 5px 10px;
+  transition: transform 0.2s ease;
+}
+
+.legend-item:hover {
+  transform: translateY(-2px);
+  color: var(--text);
+}
+
+.legend-symbol {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+  .whale-trades-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .whale-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .whale-trade-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  
+  .trade-header {
+    width: 100%;
+  }
+}
+
+.trade-category {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.trade-type {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+
+
+.whale-trade-value {
+  font-weight: bold;
+  font-size: 14px;
+  margin-left: auto;
+}
+
+.trade-price-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.whale-trade-price {
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  font-size: 15px;
+}
+
+.whale-trade-amount {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+
+
+.liquidation-buy {
+  background-color: transparent;
+  color: #ff4757;
+  border: 1px solid #ff4757;
+}
+
+.liquidation-sell {
+  background-color: transparent;
+  color: #2ed573;
+  border: 1px solid #2ed573;
+}
+
+
+
+.pnl-positive {
+  background-color: transparent;
+  color: #2ed573;
+}
+
+.pnl-negative {
+  background-color: transparent;
+  color: #ff4757;
+}
+
+.pnl-flash {
+  animation: pnlFlash 0.5s ease;
+}
+
+@keyframes pnlFlash {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+
+
+.whale-legend {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 5px 10px;
+}
+
+.legend-symbol {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+  .whale-trades-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .whale-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .whale-trade-item {
+  background-color: var(--cardbg);
+  border: 1px solid transparent;
+}
+  
+  
+  
+  .trade-header {
+    width: 100%;
+  }
+}
+
+
     .flash-green { animation: flashGreen var(--flash-duration); }
     .flash-red { animation: flashRed var(--flash-duration); }
     @keyframes flashGreen { 0% { background-color: transparent; } 50% { background-color: #2ed57333; } 100% { background-color: transparent; } }
@@ -1656,23 +2439,530 @@ gauge-container {
         <canvas id="detailChart"></canvas>
       </div>
       <!-- NERD Button -->
-      <button class="button" id="nerdBtn" data-symbol="">NERD</button>
-       </div>
-
-    <div class="trending" id="trending">
-      <h2 class="section-heading">Crypto</h2>
-      <div class="sorting-buttons">
-        <button id="topGainerBtn">Top Gainer </button>
-        <button id="topLoserBtn">Top Loser</button>
-      </div>
-      <div class="trending-container" id="trending-container">
-        <!-- Trending coin cards will be injected here -->
+            <!-- NERD Button -->
+            <button class="button" id="nerdBtn" data-symbol="">NERD</button>
+          </div>
+   
+        <!-- Replace the existing whale trades container with this improved version -->
+<div class="trending" id="trending">
+  <div id="whale-trades-container" class="whale-trades-container">
+    <div class="whale-trades-header">
+      <h3>Whale Trades <span class="whale-icon">🐋</span></h3>
+      <div class="whale-controls">
+        <select id="whale-pair-selector">
+          <option value="btcusdt">BTC/USDT</option>
+          <option value="ethusdt">ETH/USDT</option>
+          <option value="solusdt">SOL/USDT</option>
+        </select>
+        <span class="threshold-label">Min: $10,000</span>
+        <span class="refresh-indicator" id="whale-refresh-indicator">
+          <i class="fas fa-sync-alt"></i>
+        </span>
       </div>
     </div>
-  </main>
-  <script>
+    <div id="whale-trades" class="whale-trades-list">
+      <div class="whale-placeholder">Loading recent whale trades...</div>
+    </div>
+    <div class="whale-legend">
+      <div class="legend-item"><span class="legend-symbol">🐋</span> Whale ($1M+)</div>
+      <div class="legend-item"><span class="legend-symbol">🦈</span> Shark ($500k-$1M)</div>
+      <div class="legend-item"><span class="legend-symbol">🦐</span> Shrimp ($150k-$500k)</div>
+      <div class="legend-item"><span class="legend-symbol">🦠</span> Plankton ($100k-$150k)</div>
+    </div>
+  </div>
+           <!-- Enhanced divider with more visual elements -->
+           <div class="section-divider">
+             <div class="divider-accent"></div>
+             <div class="divider-line"></div>
+             <div class="divider-icon">
+               <i class="fas fa-chart-line"></i>
+               <div class="icon-pulse"></div>
+             </div>
+             <div class="divider-line"></div>
+             <div class="divider-accent"></div>
+           </div>
+           <div class="section-title-container">
+             <h3 class="section-subtitle">Market Overview</h3>
+           </div>
+           
+           <!-- Search and filter controls -->
+           <div class="crypto-controls">
+             <div class="search-container">
+               <input type="text" id="cryptoSearch" placeholder="Search cryptocurrencies..." class="crypto-search">
+               <i class="fas fa-search search-icon"></i>
+             </div>
+             <div class="filter-controls">
+               <div class="theme-filter-buttons">
+                 <button class="theme-filter-btn active" data-theme="all">All</button>
+                 <button class="theme-filter-btn" data-theme="defi">DeFi</button>
+                 <button class="theme-filter-btn" data-theme="layer1">Layer 1</button>
+                 <button class="theme-filter-btn" data-theme="meme">Meme</button>
+                 <button class="theme-filter-btn" data-theme="ai">AI</button>
+               </div>
+               <div class="time-filter-buttons">
+                 <button class="time-filter-btn active" data-timeframe="1h">1h %</button>
+                 <button class="time-filter-btn" data-timeframe="24h">24h %</button>
+                 <button class="time-filter-btn" data-timeframe="7d">7d %</button>
+               </div>
+                 <!--<div class="sorting-buttons">
+                 <button id="topGainerBtn">Top Gainer</button>
+                 <button id="topLoserBtn">Top Loser</button>
+               </div>-->
+             </div>
+           </div>
+           
+          
+          <div class="trending-container" id="trending-container">
+            <!-- Trending coin cards will be injected here -->
+          </div>
+           
+           <div class="trending-container" id="trending-container">
+             <!-- Trending coin cards will be injected here -->
+           </div>
+         </div>
+     </main>
+     <script>
 
+// Whale tracker//
+// Whale Trades Implementation
+// Whale Trades Implementation with WebSocket
+// Whale Trades Implementation - Real Data from Binance API with PNL calculation
+const whaleTrades = document.getElementById('whale-trades');
+const whalePairSelector = document.getElementById('whale-pair-selector');
+const whaleRefreshIndicator = document.getElementById('whale-refresh-indicator');
+const whaleThreshold = 10000; // $100k minimum
+const maxWhaleTrades = 15;
+let whaleTradesData = []; // Store trade data for live updates
+let priceUpdateInterval;
+
+// Function to fetch real large trades from Binance
+async function fetchHistoricalWhaleTrades(symbol) {
+  whaleRefreshIndicator.classList.remove('paused');
+  whaleTrades.innerHTML = '<div class="whale-placeholder">Loading recent whale trades...</div>';
+  
+  try {
+    // Fetch current price for the symbol
+    const priceResponse = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}`);
+    const priceData = await priceResponse.json();
+    const currentPrice = parseFloat(priceData.price);
     
+    // Fetch recent large trades from Binance API
+    const response = await fetch(`https://api.binance.com/api/v3/aggTrades?symbol=${symbol.toUpperCase()}&limit=1000`);
+    const allTrades = await response.json();
+    
+    // Filter for whale trades (over $100k)
+    whaleTradesData = allTrades.filter(trade => {
+      const price = parseFloat(trade.p);
+      const quantity = parseFloat(trade.q);
+      const value = price * quantity;
+      return value >= whaleThreshold;
+    }).slice(0, maxWhaleTrades);
+    
+    // Clear placeholder
+    document.getElementById('whale-trades').innerHTML = '';
+    
+    if (whaleTradesData.length === 0) {
+      document.getElementById('whale-trades').innerHTML = '<div class="whale-placeholder">No recent whale trades found. Try another pair.</div>';
+      whaleRefreshIndicator.classList.add('paused');
+      return;
+    }
+    
+    // Create containers for different trade categories
+    const largeTradesContainer = document.createElement('div');
+    largeTradesContainer.className = 'large-trades-container';
+    
+    const smallTradesContainer = document.createElement('div');
+    smallTradesContainer.className = 'small-trades-container';
+    smallTradesContainer.style.display = 'none';
+    
+    const smallTradesToggle = document.createElement('button');
+    smallTradesToggle.className = 'small-trades-toggle';
+    smallTradesToggle.innerHTML = 'Show smaller trades <i class="fas fa-chevron-down"></i>';
+    smallTradesToggle.addEventListener('click', () => {
+      if (smallTradesContainer.style.display === 'none') {
+        smallTradesContainer.style.display = 'block';
+        smallTradesToggle.innerHTML = 'Hide smaller trades <i class="fas fa-chevron-up"></i>';
+      } else {
+        smallTradesContainer.style.display = 'none';
+        smallTradesToggle.innerHTML = 'Show smaller trades <i class="fas fa-chevron-down"></i>';
+      }
+    });
+    
+    // Process and display the whale trades
+    whaleTradesData.forEach((trade, index) => {
+      const price = parseFloat(trade.p);
+      const quantity = parseFloat(trade.q);
+      const value = price * quantity;
+      const isBuy = !trade.m; // Binance: m=true for sell, false for buy
+      
+      // Format the trade value
+      const formattedValue = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value);
+      
+      // Format the time
+      const tradeTime = new Date(trade.T);
+      const formattedTime = tradeTime.toLocaleTimeString() + ' ' + 
+                            tradeTime.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      
+      // Calculate estimated leverage based on trade size
+      const leverage = estimateLeverage(value);
+      
+      // Calculate liquidation price
+      const liquidationPriceOffset = isBuy ? -1 : 1;
+      const liquidationPercentage = (1 / leverage) * 0.9;
+      const liquidationPrice = price * (1 + (liquidationPriceOffset * liquidationPercentage));
+      
+      // Calculate current PNL based on entry price vs current price
+      const pnlPercentage = isBuy ? 
+        ((currentPrice - price) / price) * 100 * leverage : 
+        ((price - currentPrice) / price) * 100 * leverage;
+      
+      const pnlValue = (value * pnlPercentage) / 100;
+      
+      // Determine trade category based on size
+      let categorySymbol = '';
+      if (value >= 1000000) {
+        categorySymbol = '🐋'; // Whale (>= $1M)
+      } else if (value >= 500000) {
+        categorySymbol = '🦈'; // Shark ($500k-$1M)
+      } else if (value >= 150000) {
+        categorySymbol = '🦐'; // Shrimp ($150k-$500k)
+      } else {
+        categorySymbol = '🦠'; // Plankton ($100k-$150k)
+      }
+      
+      const tradeItem = document.createElement('div');
+      tradeItem.className = 'whale-trade-item';
+      tradeItem.dataset.index = index;
+      tradeItem.dataset.price = price;
+      tradeItem.dataset.quantity = quantity;
+      tradeItem.dataset.isBuy = isBuy;
+      tradeItem.dataset.leverage = leverage;
+      
+      tradeItem.innerHTML = `
+        <div class="trade-direction-indicator ${isBuy ? 'buy-indicator' : 'sell-indicator'}"></div>
+        <div class="whale-trade-details">
+          <div class="trade-header">
+            <span class="trade-category">${categorySymbol}</span>
+            <span class="trade-type ${isBuy ? 'buy-type' : 'sell-type'}">${isBuy ? 'BUY' : 'SELL'}</span>
+            <span class="whale-trade-value">${formattedValue}</span>
+          </div>
+          <div class="trade-price-info">
+            <span class="whale-trade-price">${price.toFixed(2)}</span>
+            <span class="whale-trade-amount">${quantity.toFixed(4)} ${symbol.substring(0, 3).toUpperCase()}</span>
+          </div>
+          <div class="trade-analytics">
+            <span class="whale-liquidation liquidation-${isBuy ? 'buy' : 'sell'}">
+              Liq: ${liquidationPrice.toFixed(2)} (${leverage}x)
+            </span>
+            <span class="trade-pnl ${pnlPercentage >= 0 ? 'pnl-positive' : 'pnl-negative'}">
+              PNL: ${pnlPercentage.toFixed(2)}% (${new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              }).format(pnlValue)})
+            </span>
+          </div>
+        </div>
+        <div class="whale-trade-time">${formattedTime}</div>
+      `;
+      
+      // Add to appropriate container based on size
+      if (value >= 150000) {
+        largeTradesContainer.appendChild(tradeItem);
+      } else {
+        smallTradesContainer.appendChild(tradeItem);
+      }
+    });
+    
+    // Add containers to the DOM
+    document.getElementById('whale-trades').appendChild(largeTradesContainer);
+    if (smallTradesContainer.children.length > 0) {
+      document.getElementById('whale-trades').appendChild(smallTradesToggle);
+      document.getElementById('whale-trades').appendChild(smallTradesContainer);
+    }
+    
+    // Start live price updates
+    startLivePriceUpdates(symbol);
+    
+    whaleRefreshIndicator.classList.add('paused');
+  } catch (error) {
+    console.error('Error fetching whale trades:', error);
+    document.getElementById('whale-trades').innerHTML = '<div class="whale-placeholder">Error loading whale trades. Please try again.</div>';
+    whaleRefreshIndicator.classList.add('paused');
+  }
+}
+
+// Function to start live price updates
+function startLivePriceUpdates(symbol) {
+  // Clear any existing interval
+  if (priceUpdateInterval) {
+    clearInterval(priceUpdateInterval);
+  }
+  
+  // Set up new interval for live updates
+  priceUpdateInterval = setInterval(async () => {
+    try {
+      // Fetch current price
+      const priceResponse = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}`);
+      const priceData = await priceResponse.json();
+      const currentPrice = parseFloat(priceData.price);
+      
+      // Update PNL for all trade items
+      document.querySelectorAll('.whale-trade-item').forEach(item => {
+        const index = parseInt(item.dataset.index);
+        const tradeData = whaleTradesData[index];
+        if (!tradeData) return;
+        
+        const price = parseFloat(item.dataset.price);
+        const quantity = parseFloat(item.dataset.quantity);
+        const value = price * quantity;
+        const isBuy = item.dataset.isBuy === 'true';
+        const leverage = parseFloat(item.dataset.leverage);
+        
+        // Calculate updated PNL
+        const pnlPercentage = isBuy ? 
+          ((currentPrice - price) / price) * 100 * leverage : 
+          ((price - currentPrice) / price) * 100 * leverage;
+        
+        const pnlValue = (value * pnlPercentage) / 100;
+        
+        // Update the PNL display
+        const pnlElement = item.querySelector('.trade-pnl');
+        const oldClass = pnlElement.classList.contains('pnl-positive') ? 'pnl-positive' : 'pnl-negative';
+        const newClass = pnlPercentage >= 0 ? 'pnl-positive' : 'pnl-negative';
+        
+        pnlElement.classList.remove(oldClass);
+        pnlElement.classList.add(newClass);
+        
+        // Flash effect if PNL changed significantly
+        if (Math.abs(parseFloat(pnlElement.dataset.lastPnl || 0) - pnlPercentage) > 0.5) {
+          pnlElement.classList.add('pnl-flash');
+          setTimeout(() => pnlElement.classList.remove('pnl-flash'), 500);
+        }
+        
+        pnlElement.dataset.lastPnl = pnlPercentage;
+        
+        pnlElement.innerHTML = `
+          PNL: ${pnlPercentage.toFixed(2)}% (${new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          }).format(pnlValue)})
+        `;
+      });
+    } catch (error) {
+      console.error('Error updating live prices:', error);
+    }
+  }, 3000); // Update every 3 seconds
+}
+
+// Estimate leverage based on trade size
+function estimateLeverage(tradeValue) {
+  // Larger trades typically use lower leverage
+  if (tradeValue >= 10000000) return 5; // $10M+ trades: ~5x leverage
+  if (tradeValue >= 5000000) return 7;  // $5M+ trades: ~7x leverage
+  if (tradeValue >= 2000000) return 10; // $2M+ trades: ~10x leverage
+  if (tradeValue >= 500000) return 15;  // $500k+ trades: ~15x leverage
+  return 20; // $100k+ trades: ~20x leverage
+}
+
+// Add this to ensure the whale trades are loaded immediately when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  // Initial load of whale trades
+  fetchHistoricalWhaleTrades(whalePairSelector.value);
+  
+  // Set up auto-refresh every 2 minutes
+  setInterval(() => {
+    fetchHistoricalWhaleTrades(whalePairSelector.value);
+  }, 120000);
+});
+
+// Update when pair selector changes
+whalePairSelector.addEventListener('change', () => {
+  fetchHistoricalWhaleTrades(whalePairSelector.value);
+});
+// Define coin categories
+const coinCategories = {
+  defi: ['Uniswap', 'SushiSwap', 'Aave', 'Compound', 'Maker', 'Synthetix', 'Curve DAO Token', 'PancakeSwap'],
+  layer1: ['Bitcoin', 'Ethereum', 'Solana', 'Cardano', 'Avalanche', 'Polkadot', 'Cosmos', 'Near Protocol', 'Tron', 'BNB'],
+  meme: ['Dogecoin', 'Shiba Inu', 'Pepe'],
+  ai: ['The Graph', 'Bittensor', 'Fetch.ai', 'SingularityNET']
+};
+
+// Theme filter functionality
+document.querySelectorAll('.theme-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Update active button
+    document.querySelectorAll('.theme-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // Get selected theme
+    const theme = btn.dataset.theme;
+    
+    // Filter coins by theme
+    filterCoinsByTheme(theme);
+  });
+});
+
+function filterCoinsByTheme(theme) {
+  const cards = document.querySelectorAll('.trending-card');
+  
+  cards.forEach(card => {
+    const coinName = card.getAttribute('data-coin');
+    
+    if (theme === 'all') {
+      card.style.display = 'block';
+    } else if (coinCategories[theme] && coinCategories[theme].includes(coinName)) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// Combine search and theme filtering
+// Enhance search functionality to show coin logos and names
+// Enhance search functionality to show coin logos and names
+const searchInput = document.getElementById('cryptoSearch');
+let searchResults = null;
+
+// Create search results container if it doesn't exist
+function ensureSearchResultsContainer() {
+  if (!searchResults) {
+    searchResults = document.createElement('div');
+    searchResults.className = 'search-results';
+    document.querySelector('.search-container').appendChild(searchResults);
+  }
+  return searchResults;
+}
+
+// Enhanced search input handler
+searchInput.addEventListener('input', () => {
+  const searchTerm = searchInput.value.toLowerCase();
+  const activeTheme = document.querySelector('.theme-filter-btn.active')?.dataset.theme || 'all';
+  
+  // Filter coins in the grid
+  filterCoins(searchTerm, activeTheme);
+  
+  // Show search results dropdown with logos
+  updateSearchResults(searchTerm);
+});
+
+// Show/hide search results dropdown
+searchInput.addEventListener('focus', () => {
+  const searchTerm = searchInput.value.toLowerCase();
+  updateSearchResults(searchTerm);
+});
+
+// Close search results when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-container')) {
+    const resultsContainer = document.querySelector('.search-results');
+    if (resultsContainer) {
+      resultsContainer.style.display = 'none';
+    }
+  }
+});
+
+// Update search results dropdown
+function updateSearchResults(searchTerm) {
+  const resultsContainer = ensureSearchResultsContainer();
+  
+  // Clear previous results
+  resultsContainer.innerHTML = '';
+  
+  if (searchTerm.length < 1) {
+    resultsContainer.style.display = 'none';
+    return;
+  }
+  
+  // Find matching coins
+  const matchingCoins = trendingCoins.filter(coin => 
+    coin.name.toLowerCase().includes(searchTerm)
+  );
+  
+  if (matchingCoins.length === 0) {
+    resultsContainer.style.display = 'none';
+    return;
+  }
+  
+  // Create result items
+  matchingCoins.forEach(coin => {
+    const resultItem = document.createElement('div');
+    resultItem.className = 'search-result-item';
+    resultItem.innerHTML = `
+      <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/${coin.id}.png" alt="${coin.name}">
+      <span class="coin-name">${coin.name}</span>
+    `;
+    
+    // Add click handler to jump to the coin
+    resultItem.addEventListener('click', () => {
+      // Find and scroll to the coin card
+      const card = trendingCardsMap[coin.name];
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('highlight-card');
+        setTimeout(() => card.classList.remove('highlight-card'), 2000);
+        
+        // Clear search and hide results
+        searchInput.value = '';
+        resultsContainer.style.display = 'none';
+        
+        // Reset filters to show the selected coin
+        document.querySelectorAll('.theme-filter-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.querySelector('[data-theme="all"]').classList.add('active');
+        filterCoins('', 'all');
+      }
+    });
+    
+    resultsContainer.appendChild(resultItem);
+  });
+  
+  // Show results
+  resultsContainer.style.display = 'block';
+}
+
+// Update the existing filterCoins function to work with the enhanced search
+function filterCoins(searchTerm, theme) {
+  const cards = document.querySelectorAll('.trending-card');
+  
+  cards.forEach(card => {
+    const coinName = card.getAttribute('data-coin').toLowerCase();
+    const matchesSearch = coinName.includes(searchTerm);
+    const matchesTheme = theme === 'all' || 
+                         (coinCategories[theme] && 
+                          coinCategories[theme].includes(card.getAttribute('data-coin')));
+    
+    if (matchesSearch && matchesTheme) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// Add this CSS class for highlighting the selected coin
+const style = document.createElement('style');
+style.textContent = `
+  .highlight-card {
+    animation: highlight 2s ease;
+  }
+  
+  @keyframes highlight {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 20px var(--buttonbg); }
+  }
+`;
+document.head.appendChild(style);
     /* Global Variables */
     const TIME_LIMIT = 168;
     const circulatingSupply = {
@@ -1762,37 +3052,37 @@ gauge-container {
 
     // Initialize Trending Coin Cards
     trendingCoins.forEach((coin, index) => {
-      const card = document.createElement('div');
-      let longPressTriggered = false;
-      let pressTimer;
-      card.addEventListener('mousedown', () => {
-        longPressTriggered = false;
-        pressTimer = setTimeout(() => {
-          longPressTriggered = true;
-          card.classList.add('shaking');
-          plus.style.display = 'flex';
-        }, 300);
-      });
-      card.addEventListener('mouseup', () => {
-        clearTimeout(pressTimer);
-        setTimeout(() => { longPressTriggered = false; }, 50);
-      });
-      card.className = 'trending-card';
-      card.setAttribute('data-coin', coin.name);
-      card.innerHTML = `
-        <div class="trending-header">
-          <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/${coin.id}.png" alt="${coin.name}">
-          <span>${coin.name}</span>
-        </div>
-        <div class="trending-details">
-          <div>Price: <strong class="trending-price" data-prev="0">--</strong></div>
-          <div>7d: <strong class="trending-7d" data-prev="0">--</strong></div>
-          <div>Market Cap: <strong class="trending-marketcap" data-prev="0">--</strong></div>
-        </div>
-        <div class="trending-chart">
-          <canvas id="trending-chart-${index}" width="200" height="100"></canvas>
-        </div>
-      `;
+  const card = document.createElement('div');
+  let longPressTriggered = false;
+  let pressTimer;
+  card.addEventListener('mousedown', () => {
+    longPressTriggered = false;
+    pressTimer = setTimeout(() => {
+      longPressTriggered = true;
+      card.classList.add('shaking');
+      plus.style.display = 'flex';
+    }, 300);
+  });
+  card.addEventListener('mouseup', () => {
+    clearTimeout(pressTimer);
+    setTimeout(() => { longPressTriggered = false; }, 50);
+  });
+  card.className = 'trending-card';
+  card.setAttribute('data-coin', coin.name);
+  card.innerHTML = `
+    <div class="trending-header">
+      <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/${coin.id}.png" alt="${coin.name}">
+      <span>${coin.name}</span>
+    </div>
+    <div class="trending-details">
+      <div>Price: <strong class="trending-price" data-prev="0">--</strong></div>
+      <div>Change: <strong class="trending-percentage" data-prev="0">--</strong></div>
+      <div>Market Cap: <strong class="trending-marketcap" data-prev="0">--</strong></div>
+    </div>
+    <div class="trending-chart">
+      <canvas id="trending-chart-${index}" width="200" height="100"></canvas>
+    </div>
+  `;
       trendingContainer.appendChild(card);
       trendingCardsMap[coin.name] = card;
       card.addEventListener('click', function(e) {
@@ -1808,7 +3098,86 @@ gauge-container {
         initChart(ctx, data, color);
       });
     });
+    function updatePercentageDisplay(timeframe) {
+  trendingCoins.forEach(coin => {
+    const card = trendingCardsMap[coin.name];
+    if (!card) return;
+    
+    const percentageElement = card.querySelector('.trending-percentage');
+    if (!percentageElement) return;
+    
+    // Show loading state
+    percentageElement.textContent = 'Loading...';
+    percentageElement.className = 'trending-percentage';
+    
+    // Fetch the appropriate data based on timeframe
+    fetchPercentageChange(coin.symbol, timeframe)
+      .then(percentage => {
+        // Format the percentage with + or - sign and 2 decimal places
+        const formattedPercentage = (percentage >= 0 ? '+' : '') + percentage.toFixed(2) + '%';
+        
+        // Update the text and class for color
+        percentageElement.textContent = formattedPercentage;
+        percentageElement.classList.add(percentage >= 0 ? 'positive' : 'negative');
+      })
+      .catch(error => {
+        console.error(`Error fetching ${timeframe} change for ${coin.name}:`, error);
+        percentageElement.textContent = 'N/A';
+      });
+  });
+}
 
+// Function to fetch percentage change for a given timeframe
+async function fetchPercentageChange(symbol, timeframe) {
+  let interval, limit;
+  
+  // Set appropriate interval and limit based on timeframe
+  if (timeframe === '1h') {
+    interval = '1m';
+    limit = 60;
+  } else if (timeframe === '24h') {
+    interval = '15m';
+    limit = 96; // 24 hours / 15 minutes
+  } else if (timeframe === '7d') {
+    interval = '2h';
+    limit = 84; // 7 days / 2 hours
+  }
+  
+  const endpoint = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+  
+  try {
+    const response = await fetch(endpoint);
+    const data = await response.json();
+    
+    if (data.length < 2) return 0;
+    
+    const startPrice = parseFloat(data[0][1]); // Open price of first candle
+    const endPrice = parseFloat(data[data.length - 1][4]); // Close price of last candle
+    
+    const percentageChange = ((endPrice - startPrice) / startPrice) * 100;
+    return percentageChange;
+  } catch (error) {
+    console.error('Error fetching percentage change:', error);
+    return 0;
+  }
+}
+
+// Add event listeners for time filter buttons
+document.querySelectorAll('.time-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Update active button
+    document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // Update percentage displays with selected timeframe
+    updatePercentageDisplay(btn.dataset.timeframe);
+  });
+});
+
+// Initialize with 1h timeframe
+document.addEventListener('DOMContentLoaded', () => {
+  updatePercentageDisplay('1h');
+});
     function formatCurrency(value) {
   const absValue = Math.abs(value);
   if (absValue >= 1e12) {
@@ -1831,7 +3200,92 @@ gauge-container {
       else if (newVal < oldVal) { element.classList.add('flash-red'); }
       setTimeout(() => { element.classList.remove('flash-green', 'flash-red'); }, 800);
     }
+    // Add this function to format market cap values
+    function formatAbbreviatedCurrency(value) {
+      if (value >= 1e12) {
+        return '$' + (value / 1e12).toFixed(2) + 'T';
+      }
+      if (value >= 1e9) {
+        return '$' + (value / 1e9).toFixed(2) + 'B';
+      }
+      if (value >= 1e6) {
+        return '$' + (value / 1e6).toFixed(2) + 'M';
+      }
+      if (value >= 1e3) {
+        return '$' + (value / 1e3).toFixed(2) + 'K';
+      }
+      return '$' + value.toFixed(2);
+    }
 
+    // Modify the updatePercentageDisplay function to add a refresh interval
+    function updatePercentageDisplay(timeframe) {
+      trendingCoins.forEach(coin => {
+        const card = trendingCardsMap[coin.name];
+        if (!card) return;
+        
+        const percentageElement = card.querySelector('.trending-percentage');
+        if (!percentageElement) return;
+        
+        // Show loading state
+        percentageElement.textContent = 'Loading...';
+        percentageElement.className = 'trending-percentage';
+        
+        // Fetch the appropriate data based on timeframe
+        fetchPercentageChange(coin.symbol, timeframe)
+          .then(percentage => {
+            // Format the percentage with + or - sign and 2 decimal places
+            const formattedPercentage = (percentage >= 0 ? '+' : '') + percentage.toFixed(2) + '%';
+            
+            // Update the text and class for color
+            percentageElement.textContent = formattedPercentage;
+            percentageElement.classList.add(percentage >= 0 ? 'positive' : 'negative');
+          })
+          .catch(error => {
+            console.error(`Error fetching ${timeframe} change for ${coin.name}:`, error);
+            percentageElement.textContent = 'N/A';
+          });
+      });
+    }
+
+    // Initialize with 1h timeframe and set up auto-refresh
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initial update
+      updatePercentageDisplay('1h');
+      
+      // Set up auto-refresh intervals based on timeframe
+      const refreshIntervals = {
+        '1h': 60000,  // Refresh 1h data every minute
+        '24h': 300000, // Refresh 24h data every 5 minutes
+        '7d': 900000   // Refresh 7d data every 15 minutes
+      };
+      
+      // Start the auto-refresh for the active timeframe
+      let activeTimeframe = '1h';
+      let refreshInterval = setInterval(() => {
+        updatePercentageDisplay(activeTimeframe);
+      }, refreshIntervals[activeTimeframe]);
+      
+      // Update the refresh interval when timeframe changes
+      document.querySelectorAll('.time-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Update active button
+          document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          // Update the active timeframe
+          activeTimeframe = btn.dataset.timeframe;
+          
+          // Update percentage displays with selected timeframe
+          updatePercentageDisplay(activeTimeframe);
+          
+          // Reset the refresh interval
+          clearInterval(refreshInterval);
+          refreshInterval = setInterval(() => {
+            updatePercentageDisplay(activeTimeframe);
+          }, refreshIntervals[activeTimeframe]);
+        });
+      });
+    });
     async function fetchHistoricalData(symbol, hours = 168) {
       // Dynamic interval selection based on timeframe
       let interval;
@@ -2041,7 +3495,6 @@ gauge-container {
         if (coin && trendingCardsMap[coin]) {
           const card = trendingCardsMap[coin];
           const price = parseFloat(ticker.c);
-          const change7d = parseFloat(ticker.P);
           const marketCap = price * (circulatingSupply[coin] || 1000000);
 
           const priceEl = card.querySelector('.trending-price');
@@ -2050,12 +3503,10 @@ gauge-container {
           flashUpdate(priceEl, price, oldPrice);
           priceEl.setAttribute('data-prev', price);
 
-          const changeEl = card.querySelector('.trending-7d');
-          changeEl.textContent = `${change7d >= 0 ? '+' : ''}${change7d.toFixed(2)}%`;
-          changeEl.className = `trending-7d ${change7d >= 0 ? 'positive' : 'negative'}`;
+          // Fix: The percentage change is now handled by the time filter buttons
+          // No need to update the change element here
 
           const marketCapEl = card.querySelector('.trending-marketcap');
-          // Use formatAbbreviatedCurrency instead of formatCurrency
           marketCapEl.textContent = formatAbbreviatedCurrency(marketCap);
 
           if (currentDetailCoin === coin) {
@@ -2066,6 +3517,41 @@ gauge-container {
         }
       });
     };
+    async function loadInitialPrices() {
+      for (const coin of trendingCoins) {
+        try {
+          const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${coin.symbol}`);
+          const data = await response.json();
+          if (data && data.price && trendingCardsMap[coin.name]) {
+            const card = trendingCardsMap[coin.name];
+            const price = parseFloat(data.price);
+            const marketCap = price * (circulatingSupply[coin.name] || 1000000);
+            
+            const priceEl = card.querySelector('.trending-price');
+            priceEl.textContent = formatCurrency(price);
+            priceEl.setAttribute('data-prev', price);
+            
+            const marketCapEl = card.querySelector('.trending-marketcap');
+            marketCapEl.textContent = formatAbbreviatedCurrency(marketCap);
+          }
+        } catch (error) {
+          console.error(`Error loading price for ${coin.name}:`, error);
+        }
+      }
+    }
+
+    // Call this function when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add a timeout to load prices if WebSocket doesn't respond quickly
+      setTimeout(() => {
+        const priceElements = document.querySelectorAll('.trending-price');
+        const needsLoading = Array.from(priceElements).some(el => el.textContent === '--');
+        if (needsLoading) {
+          console.log('Loading prices via REST API fallback...');
+          loadInitialPrices();
+        }
+      }, 5000);
+    });
 
     window.addEventListener('load', function() {
       setTimeout(function() {
